@@ -476,7 +476,10 @@ function importData(txt){
   const now=Date.now();let n=0;
   for(const k in (j.tasks||{})){const t=j.tasks[k];if(t&&t.id){S.tasks[t.id]={...t,_u:now};delete S.del[t.id];n++}}
   for(const k in (j.days||{})){if(j.days[k])S.days[k]={...j.days[k],_u:now}}
-  if(j.settings)S.settings={...defSettings(),...S.settings,...j.settings,_u:now};
+  if(j.settings){const js=j.settings,cs=S.settings;
+    const cats=[...cs.cats];(js.cats||[]).forEach(c=>{if(!cats.includes(c))cats.push(c)});
+    const rts=[...(cs.routines||[])];(js.routines||[]).forEach(r=>{if(r&&!rts.some(x=>x.id===r.id))rts.push(r)});
+    S.settings=cs._u?{...cs,cats,routines:rts,_u:now}:{...defSettings(),...js,...{cats,routines:rts},_u:now}}
   store.dirty=true;store.cacheLocal();sync();render();toast(`할 일 ${n}개를 가져왔어요`);
 }
 document.addEventListener('click',e=>{
