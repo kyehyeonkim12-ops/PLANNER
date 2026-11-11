@@ -569,6 +569,7 @@ function vSet(){
      <div class="row"><label class="muted">시작</label><input class="inp" type="time" id="rtTime" value="${esc(rDraft.time)}"><label class="muted">걸리는 시간(분)</label><input class="inp" style="width:80px" inputmode="numeric" id="rtEst" value="${esc(rDraft.est)}"><button class="btn pri" data-act="radd">추가</button></div>
     </div></div></div>
    <div class="box">${BH('list','TAGS','카테고리')}<div class="bb"><div class="row">${cats}</div><div class="row"><input class="inp" id="catNew" placeholder="새 카테고리"><button class="btn pri" data-act="catadd">추가</button></div></div></div>
+   <div class="box">${BH('list','DATA','데이터 내보내기')}<div class="bb"><div class="muted">홈 화면 앱(Study Plan)으로 옮길 때 쓰세요. 내보내기를 누르면 아래에 내용이 나오고 복사돼요. 앱의 설정 → DATA에 붙여넣고 가져오기를 누르면 돼요.</div><textarea class="inp" id="ioTxt" readonly style="width:100%;min-height:80px;margin-top:8px;font-size:12px"></textarea><div class="row"><button class="btn pri" data-act="dexp">내보내기</button></div></div></div>
    <div class="box">${BH('clock','MY PACE','내 속도')}<div class="bb">${sp.r?`최근 60일 동안 예상 시간보다 평균 <b>${sp.r.toFixed(2)}배</b> 걸렸어요 (할 일 ${sp.n}개 기준). 할 일을 추가할 때 이 비율로 보정한 시간을 함께 보여 줘요.`:`할 일을 끝낼 때 실제 걸린 시간을 적으면, 3개 이상 쌓였을 때부터 내 속도를 계산해요. (지금 ${sp.n}개)`}</div></div>
   </div>`;
 }
@@ -775,6 +776,8 @@ view.addEventListener('click',e=>{
   else if(a==='radd'){syncR();if(!rDraft.title.trim()||!rDraft.days.length){toast('이름과 요일을 정해 주세요');return}
     const r={id:uid(),title:rDraft.title.trim(),cat:rDraft.cat,days:rDraft.days,time:rDraft.time,est:rDraft.est?+rDraft.est:'',from:today()};
     saveSettings({routines:[...(S.settings.routines||[]),r]});rDraft={title:'',cat:'',days:[],time:'',est:''};render();toast('반복 일정을 추가했어요')}
+  else if(a==='dexp'){const t=document.getElementById('ioTxt');const v=JSON.stringify({tasks:S.tasks,days:S.days,settings:S.settings});t.value=v;t.focus();t.select();
+    try{navigator.clipboard.writeText(v).then(()=>toast('복사했어요'),()=>toast('위 내용을 길게 눌러 복사하세요'))}catch(e){toast('위 내용을 길게 눌러 복사하세요')}}
   else if(a==='rdel'){saveSettings({routines:(S.settings.routines||[]).filter(r=>r.id!==id)});render()}
 });
 function syncR(){const g=i=>document.getElementById(i);if(!g('rtTitle'))return;rDraft.title=g('rtTitle').value;rDraft.cat=g('rtCat').value;rDraft.time=g('rtTime').value;rDraft.est=g('rtEst').value.replace(/[^0-9]/g,'')}
